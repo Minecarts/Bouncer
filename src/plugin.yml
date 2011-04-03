@@ -1,11 +1,13 @@
-name: Template Plugin
-main: com.minecarts.templateplugin.TemplatePlugin
+name: Bouncer
+main: com.minecarts.bouncer.Bouncer
 version: 1.0.0
 website: http://minecarts.com
 author: Verrier
+depend: [DBConnector]
 description: >
-             A description of your plugin
+             A player connection and disconnection support plugin
 commands:
-  test:
-    description: Do the test feature!
+  bouncer:
+    description: Access to the bouncer functions
     usage: /<command>
+    

@@ -1,13 +1,13 @@
-package com.minecarts.templateplugin;
+package com.minecarts.bouncer;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 public abstract class CommandHandler implements CommandExecutor {
-    protected final TemplatePlugin plugin;
+    protected final Bouncer plugin;
 
-    public CommandHandler(TemplatePlugin plugin) {
+    public CommandHandler(Bouncer plugin) {
         this.plugin = plugin;
     }
     

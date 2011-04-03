@@ -1,5 +1,8 @@
-<project name="TemplatePlugin" default="dist" basedir=".">
-	<property name="pluginname" value="${ant.project.name}"/>
+<project name="Bouncer" default="dist" basedir=".">
+	<dirname property="pdir" file="build.xml" /> 
+	<basename property="dirname" file="${pdir}"/> 
+	
+	<property name="pluginname" value="${dirname}"/>
 	<property name="plugins" location="${minecraft.dir}\plugins"/>
 
 	<property name="src" location="src"/>
@@ -11,9 +14,10 @@
 	</target>
 	
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" destdir="${bin}" includeantruntime="false">
+		<javac srcdir="${src}" destdir="${bin}" includeantruntime="false" debug="true" debuglevel="lines,vars,source">
 			<classpath>
 				<pathelement location="${bukkit.jar}"/>
+				<pathelement location="C:/Minecraft/plugins/DBConnector.jar"/>
 			</classpath>
 		</javac>
 	</target>
