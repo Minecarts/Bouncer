@@ -17,6 +17,7 @@ public class DBHelper {
         this.plugin = plugin;
     }
     public String isIdentiferBanned(String identifier){
+        String result = null;
         try{
             Connection conn = this.getConnection();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `player_bans` WHERE `identifier` = ? LIMIT 1");            
@@ -27,7 +28,7 @@ public class DBHelper {
             ps.setString(1, identifier);
             ResultSet set = ps.executeQuery();
             if(set.next()) {
-                return set.getString("reason");
+                result = set.getString("reason");
             }
             set.close();
             ps.close();
@@ -35,7 +36,7 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
     }
     
     public String getJoinMessage(String playerName){
@@ -46,6 +47,7 @@ public class DBHelper {
     }
     
     public String getKey(String key, String playerName){
+        String result = null;
         try{
             Connection conn = this.getConnection();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM `player_meta` WHERE `player` = ? AND `key`=? LIMIT 1");
@@ -57,7 +59,7 @@ public class DBHelper {
             ps.setString(2, key);
             ResultSet set = ps.executeQuery();
             if(set.next()) {
-                return set.getString("value");
+                 result = set.getString("value");
             }
             set.close();
             ps.close();
@@ -65,7 +67,7 @@ public class DBHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
     }
 
     

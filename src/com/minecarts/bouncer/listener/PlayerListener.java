@@ -70,7 +70,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         String playerDisplayName = e.getPlayer().getDisplayName();
         String message = plugin.dbHelper.getQuitMessage(playerName);
         if(message != null){
-            e.setQuitMessage(MessageFormat.format(message,playerDisplayName));
+            e.setQuitMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
         } else {
             e.setQuitMessage(ChatColor.GRAY + playerDisplayName + " has left the server.");
         }
