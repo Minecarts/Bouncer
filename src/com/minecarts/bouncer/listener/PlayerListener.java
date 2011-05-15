@@ -53,21 +53,26 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     @Override
     public void onPlayerJoin(PlayerJoinEvent e){
         String playerName = e.getPlayer().getName();
+        String playerDisplayName = e.getPlayer().getDisplayName();
         String message = plugin.dbHelper.getJoinMessage(playerName);
         if(message != null){
-            e.setJoinMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerName));
+            e.setJoinMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
         } else if(plugin.dbHelper.getKey("joinCount", playerName) == null){
         //} else if(e.getPlayer().getLocation().getPitch() == 0 && e.getPlayer().getLocation().getYaw() == 0){
-            e.setJoinMessage(ChatColor.WHITE + playerName + " has joined the server for the first time!");
+            e.setJoinMessage(ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!");
         } else {
-            e.setJoinMessage(ChatColor.GRAY + playerName + " has joined the server.");
+            e.setJoinMessage(ChatColor.GRAY + playerDisplayName + " has joined the server.");
         }
     }
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
-        String message = plugin.dbHelper.getQuitMessage(e.getPlayer().getName());
+        String playerName = e.getPlayer().getName();
+        String playerDisplayName = e.getPlayer().getDisplayName();
+        String message = plugin.dbHelper.getQuitMessage(playerName);
         if(message != null){
-            e.setQuitMessage(MessageFormat.format(message,e.getPlayer().getDisplayName()));
+            e.setQuitMessage(MessageFormat.format(message,playerDisplayName));
+        } else {
+            e.setQuitMessage(ChatColor.GRAY + playerDisplayName + " has left the server.");
         }
     }
 }

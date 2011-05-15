@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.minecarts.bouncer.Bouncer;
-import com.minecarts.bouncer.helper.BanInfo;
-import com.minecarts.bouncer.helper.PlayerInfo;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
