@@ -13,7 +13,6 @@ public class BouncerCommand extends CommandHandler{
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        sender.sendMessage("A deafult command");
         return true;
     }
 }
