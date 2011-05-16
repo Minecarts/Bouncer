@@ -53,7 +53,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         } else if(plugin.dbHelper.getKey("joinCount", playerName) == null){
             e.setJoinMessage(ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!");
         } else {
-            e.setJoinMessage(ChatColor.GRAY + playerDisplayName + " has joined the server.");
+            e.setJoinMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has joined the server.");
         }
     }
     @Override
@@ -64,7 +64,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         if(message != null){
             e.setQuitMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
         } else {
-            e.setQuitMessage(ChatColor.GRAY + playerDisplayName + " has left the server.");
+            e.setQuitMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
         }
     }
 }
