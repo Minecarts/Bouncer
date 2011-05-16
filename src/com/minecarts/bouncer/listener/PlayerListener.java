@@ -30,24 +30,17 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         String reason = plugin.dbHelper.isIdentiferBanned(e.getPlayer().getName());
         if(reason != null){
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-            e.setKickMessage("You have been banned: " + reason);
+            e.setKickMessage(reason);
             return;
         }
-        //Check to see if they're a sub
-        boolean isSubscriber = false;
-        if(isSubscriber){
-            //Check the player count
-            Player[] online = Bukkit.getServer().getOnlinePlayers();
-            if(online.length >= Bukkit.getServer().getMaxPlayers()){
-                //Kick the newest player
-                online[online.length - 1].kickPlayer(plugin.fullMessage);
-                e.setResult(Result.ALLOWED);
+        if(e.getResult() == Result.KICK_FULL){
+            if(plugin.objectData.shared.get(e.getPlayer(), "subscriptionType") != null){
+                Player[] online = Bukkit.getServer().getOnlinePlayers();
+                online[online.length - 1].kickPlayer(plugin.fullMessage); //Kick the most recent connecting player
+                e.setResult(Result.ALLOWED); //And let the subscriber connect
+                return;
             }
-        } else {
-            //Check to see if the server is full and display a better message
-            if(e.getResult() == Result.KICK_FULL){
-                e.setKickMessage(plugin.fullMessage);
-            }
+            e.setKickMessage(plugin.fullMessage);
         }
     }
     @Override
@@ -58,7 +51,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         if(message != null){
             e.setJoinMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
         } else if(plugin.dbHelper.getKey("joinCount", playerName) == null){
-        //} else if(e.getPlayer().getLocation().getPitch() == 0 && e.getPlayer().getLocation().getYaw() == 0){
             e.setJoinMessage(ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!");
         } else {
             e.setJoinMessage(ChatColor.GRAY + playerDisplayName + " has joined the server.");

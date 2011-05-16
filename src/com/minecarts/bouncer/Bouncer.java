@@ -10,11 +10,14 @@ import com.minecarts.dbconnector.DBConnector;
 import com.minecarts.bouncer.command.BouncerCommand;
 import com.minecarts.bouncer.listener.*;
 import com.minecarts.bouncer.helper.DBHelper;
+import com.minecarts.objectdata.ObjectData;
 
 public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 	public final Logger log = Logger.getLogger("com.minecarts.bouncer");
 	public DBConnector dbc;
 	public DBHelper dbHelper;
+	public ObjectData objectData;
+	
 	public final String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
 	
 	private final PlayerListener playerListener = new PlayerListener(this);
@@ -23,6 +26,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         PluginManager pm = getServer().getPluginManager();
         PluginDescriptionFile pdf = getDescription();
         dbc = (DBConnector) pm.getPlugin("DBConnector");
+        objectData = (ObjectData) pm.getPlugin("ObjectData");
         dbHelper = new DBHelper(this);
 
         //Register our events

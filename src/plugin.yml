@@ -1,9 +1,9 @@
 name: Bouncer
 main: com.minecarts.bouncer.Bouncer
-version: 1.0.0
+version: 1.0.1
 website: http://minecarts.com
 author: Verrier
-depend: [DBConnector]
+depend: [DBConnector, ObjectData]
 description: >
              A player connection and disconnection support plugin
 commands:
