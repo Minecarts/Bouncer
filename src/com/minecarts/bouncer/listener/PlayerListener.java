@@ -7,6 +7,7 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 import java.text.MessageFormat;
@@ -65,6 +66,17 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             e.setQuitMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
         } else {
             e.setQuitMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
+        }
+    }
+    @Override
+    public void onPlayerKick(PlayerKickEvent e){
+        String playerName = e.getPlayer().getName();
+        String playerDisplayName = e.getPlayer().getDisplayName();
+        String message = plugin.dbHelper.getQuitMessage(playerName);
+        if(message != null){
+            e.setLeaveMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
+        } else {
+            e.setLeaveMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
         }
     }
 }
