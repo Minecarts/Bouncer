@@ -20,7 +20,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 	
 	public final String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
 	
-	private final PlayerListener playerListener = new PlayerListener(this);
+	public final PlayerListener playerListener = new PlayerListener(this);
 
     public void onEnable() {
         PluginManager pm = getServer().getPluginManager();

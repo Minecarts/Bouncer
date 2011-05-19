@@ -14,6 +14,8 @@ import java.text.MessageFormat;
 
 public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     private Bouncer plugin;
+    private java.util.HashMap<String, Integer> playerFlagged = new java.util.HashMap<String, Integer>();
+    
     public PlayerListener(Bouncer plugin){
         this.plugin = plugin;
     }
@@ -57,6 +59,14 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         } else {
             e.setJoinMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has joined the server.");
         }
+
+        if(this.playerFlagged.containsKey(playerName)){
+            Integer taskId = this.playerFlagged.remove(playerName);
+            e.setJoinMessage(null);  //They rejoined, no join message
+            if(taskId != null){
+                Bukkit.getServer().getScheduler().cancelTask(taskId); //Cancel leave message from showing
+            }
+        }
     }
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
@@ -69,6 +79,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         } else {
             e.setQuitMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
         }
+        this.delayedOptionalMessage(e.getQuitMessage(), playerName);
+        e.setQuitMessage(null);
     }
     @Override
     public void onPlayerKick(PlayerKickEvent e){
@@ -82,4 +94,29 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             e.setLeaveMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
         }
     }
+    
+    
+    //
+    private void delayedOptionalMessage(String message, String playerName){
+        Runnable delayedSend = new DelayedSend(message, playerName, plugin);
+        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 5); //5 seconds later
+        this.playerFlagged.put(playerName, taskId);
+    }
+    
+    private class DelayedSend implements Runnable{
+        private String message;
+        private String playerName;
+        private Bouncer plugin;
+        public DelayedSend(String message, String playerName, Bouncer plugin){
+            this.message = message;
+            this.playerName = playerName;
+            this.plugin = plugin;
+        }
+        
+        public void run(){
+            Integer taskId = plugin.playerListener.playerFlagged.remove(playerName);
+            Bukkit.getServer().broadcastMessage(message);
+        }
+    }
+    
 }
