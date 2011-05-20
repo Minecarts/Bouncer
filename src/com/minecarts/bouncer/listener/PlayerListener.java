@@ -110,23 +110,22 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         String playerDisplayName = e.getPlayer().getDisplayName();
         String format = plugin.dbHelper.getQuitMessage(playerName);
         String displayMessage = "";
-        
-      //Always clear the message, because we send it to all players ourselves
+
         e.setLeaveMessage(null);
-        
+
         //Determine the format of the message
         if(format != null){
             displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
         } else {
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
         }
-        this.delayedOptionalMessage(displayMessage, e.getPlayer());
+        //this.delayedOptionalMessage(displayMessage, e.getPlayer());
     }
     
     //
     private void delayedOptionalMessage(String message, Player player){
         Runnable delayedSend = new DelayedSend(message, player, plugin);
-        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 5); //5 seconds later
+        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 12); //12 seconds later
         this.playerFlagged.put(player.getName(), taskId);
     }
     
