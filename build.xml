@@ -19,6 +19,7 @@
 				<pathelement location="${bukkit.jar}"/>
 				<pathelement location="C:/Minecraft/plugins/DBConnector.jar"/>
 				<pathelement location="C:/Minecraft/plugins/ObjectData.jar"/>
+				<pathelement location="C:/Minecraft/plugins/BarrensChat.jar"/>
 			</classpath>
 		</javac>
 	</target>

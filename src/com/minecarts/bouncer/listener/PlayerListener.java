@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 import java.text.MessageFormat;
 
+import com.minecarts.barrenschat.cache.CacheIgnore;
+
 public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     private Bouncer plugin;
     private java.util.HashMap<String, Integer> playerFlagged = new java.util.HashMap<String, Integer>();
@@ -19,7 +21,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public PlayerListener(Bouncer plugin){
         this.plugin = plugin;
     }
-    
+//Bans
     @Override
     public void onPlayerPreLogin(PlayerPreLoginEvent e){
         String reason = plugin.dbHelper.isIdentiferBanned(e.getAddress().toString());
@@ -46,25 +48,40 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             e.setKickMessage(plugin.fullMessage);
         }
     }
+//Login messages
     @Override
     public void onPlayerJoin(PlayerJoinEvent e){
         String playerName = e.getPlayer().getName();
         String playerDisplayName = e.getPlayer().getDisplayName();
-        String message = plugin.dbHelper.getJoinMessage(playerName);
-        if(message != null){
-            if(message.equals("")) e.setJoinMessage(null);
-            else e.setJoinMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
+        String format = plugin.dbHelper.getJoinMessage(playerName);
+        String displayMessage = null;
+
+        //Always clear the message, because we send it to all players ourselves for ignore list support
+        e.setJoinMessage(null);
+        //Determine the format of the message
+        if(format != null){
+            displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
         } else if(plugin.dbHelper.getKey("joinCount", playerName) == null){
-            e.setJoinMessage(ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!");
+            displayMessage = ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!";
         } else {
-            e.setJoinMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has joined the server.");
+            displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged in.";
         }
 
+        //Check to see if it's a rejoin 
         if(this.playerFlagged.containsKey(playerName)){
             Integer taskId = this.playerFlagged.remove(playerName);
-            e.setJoinMessage(null);  //They rejoined, no join message
+            //e.setJoinMessage(null);  //They rejoined, no join message
+            displayMessage = null;
             if(taskId != null){
                 Bukkit.getServer().getScheduler().cancelTask(taskId); //Cancel leave message from showing
+            }
+        }
+
+        //If it's not blank, it's a valid message and lets send it!
+        if(displayMessage != null){
+            for(Player player : Bukkit.getServer().getOnlinePlayers()){
+                if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
+                player.sendMessage(displayMessage); 
             }
         }
     }
@@ -72,50 +89,64 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public void onPlayerQuit(PlayerQuitEvent e){
         String playerName = e.getPlayer().getName();
         String playerDisplayName = e.getPlayer().getDisplayName();
-        String message = plugin.dbHelper.getQuitMessage(playerName);
-        if(message != null){
-            if(message.equals("")) e.setQuitMessage(null);
-            else e.setQuitMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
-        } else {
-            e.setQuitMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
-        }
-        this.delayedOptionalMessage(e.getQuitMessage(), playerName);
+        String format = plugin.dbHelper.getQuitMessage(playerName);
+        String displayMessage = "";
+        
+      //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setQuitMessage(null);
+        
+        //Determine the format of the message
+        if(format != null){
+            displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
+        } else {
+            displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
+        }
+
+        this.delayedOptionalMessage(displayMessage, e.getPlayer());
     }
     @Override
     public void onPlayerKick(PlayerKickEvent e){
         String playerName = e.getPlayer().getName();
         String playerDisplayName = e.getPlayer().getDisplayName();
-        String message = plugin.dbHelper.getQuitMessage(playerName);
-        if(message != null){
-            if(message.equals("")) e.setLeaveMessage(null);
-            else e.setLeaveMessage(MessageFormat.format("{0}" + message,ChatColor.GRAY,playerDisplayName));
+        String format = plugin.dbHelper.getQuitMessage(playerName);
+        String displayMessage = "";
+        
+      //Always clear the message, because we send it to all players ourselves
+        e.setLeaveMessage(null);
+        
+        //Determine the format of the message
+        if(format != null){
+            displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
         } else {
-            e.setLeaveMessage(ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " has left the server.");
+            displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
         }
+        this.delayedOptionalMessage(displayMessage, e.getPlayer());
     }
     
-    
     //
-    private void delayedOptionalMessage(String message, String playerName){
-        Runnable delayedSend = new DelayedSend(message, playerName, plugin);
+    private void delayedOptionalMessage(String message, Player player){
+        Runnable delayedSend = new DelayedSend(message, player, plugin);
         int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 5); //5 seconds later
-        this.playerFlagged.put(playerName, taskId);
+        this.playerFlagged.put(player.getName(), taskId);
     }
     
     private class DelayedSend implements Runnable{
         private String message;
-        private String playerName;
+        private Player playerLeft;
         private Bouncer plugin;
-        public DelayedSend(String message, String playerName, Bouncer plugin){
+
+        public DelayedSend(String message, Player playerLeft, Bouncer plugin){
             this.message = message;
-            this.playerName = playerName;
+            this.playerLeft = playerLeft;
             this.plugin = plugin;
         }
         
         public void run(){
-            Integer taskId = plugin.playerListener.playerFlagged.remove(playerName);
-            Bukkit.getServer().broadcastMessage(message);
+            Integer taskId = plugin.playerListener.playerFlagged.remove(playerLeft.getName());
+            for(Player player : Bukkit.getServer().getOnlinePlayers()){
+                if(CacheIgnore.isIgnoring(player, playerLeft)) continue;
+                player.sendMessage(message); 
+            }
         }
     }
     
