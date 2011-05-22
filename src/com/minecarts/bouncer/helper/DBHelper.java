@@ -20,7 +20,7 @@ public class DBHelper {
         String result = null;
         try{
             Connection conn = this.getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `player_bans` WHERE `identifier` = ? LIMIT 1");            
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM `player_bans` WHERE `identifier` = ? AND `expireTime` >= NOW() LIMIT 1");            
             if(ps == null){
                 plugin.log.warning("GetBanList query failed");
                 conn.close();
