@@ -61,7 +61,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         //Determine the format of the message
         if(format != null){
             displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
-        } else if(plugin.dbHelper.getKey("joinCount", playerName) == null){
+        } else if(plugin.dbHelper.getKey("Hints_FirstJoin", playerName) == null){
             displayMessage = ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!";
         } else {
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged in.";
