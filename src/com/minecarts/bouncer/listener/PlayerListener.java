@@ -27,7 +27,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         String reason = plugin.dbHelper.isIdentiferBanned(e.getAddress().toString());
         if(reason != null){
             e.setResult(PlayerPreLoginEvent.Result.KICK_BANNED);
-            e.setKickMessage("You have been banned: " + reason);
+            e.setKickMessage(reason);
         }
     }
     @Override
