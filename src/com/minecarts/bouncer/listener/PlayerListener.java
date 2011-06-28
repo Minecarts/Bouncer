@@ -59,7 +59,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setJoinMessage(null);
         //Determine the format of the message
-        if(format != null){
+        if(format != null && !format.equals("")){
             displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
         } else if(plugin.dbHelper.getKey("Hints_FirstJoin", playerName) == null){
             displayMessage = ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!";
@@ -96,7 +96,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         e.setQuitMessage(null);
         
         //Determine the format of the message
-        if(format != null){
+        if(format != null && !format.equals("")){
             displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
         } else {
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
