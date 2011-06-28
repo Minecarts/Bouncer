@@ -40,5 +40,12 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>com.minecarts</groupId>
+      <artifactId>BarrensChat</artifactId>
+      <version>1.0.8</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 </project>
