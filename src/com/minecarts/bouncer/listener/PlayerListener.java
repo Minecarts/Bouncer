@@ -24,6 +24,12 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 //Bans
     @Override
     public void onPlayerPreLogin(PlayerPreLoginEvent e){
+        if(plugin.loginLock){
+            e.setResult(PlayerPreLoginEvent.Result.KICK_OTHER);
+            e.setKickMessage("Server is still starting. Please try again in a couple seconds.");
+            return;
+        }
+        
         String reason = plugin.dbHelper.isIdentiferBanned(e.getAddress().toString());
         if(reason != null){
             e.setResult(PlayerPreLoginEvent.Result.KICK_BANNED);
@@ -31,7 +37,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
     }
     @Override
-    public void onPlayerLogin(PlayerLoginEvent e){
+    public void onPlayerLogin(PlayerLoginEvent e){       
         String reason = plugin.dbHelper.isIdentiferBanned(e.getPlayer().getName());
         if(reason != null){
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);

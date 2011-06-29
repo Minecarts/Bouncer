@@ -12,6 +12,7 @@ import com.minecarts.bouncer.listener.*;
 import com.minecarts.bouncer.helper.DBHelper;
 import com.minecarts.objectdata.ObjectData;
 import com.minecarts.barrenschat.BarrensChat;
+import org.bukkit.Bukkit;
 
 public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 	public final Logger log = Logger.getLogger("com.minecarts.bouncer");
@@ -19,6 +20,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 	public DBHelper dbHelper;
 	public ObjectData objectData;
 	public BarrensChat barrensChat;
+        
+        public boolean loginLock = true;
 	
 	public final String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
 	
@@ -43,6 +46,12 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
         
         log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+        
+        //Disable the login lock to allow players to connect
+        this.getServer().getScheduler().scheduleAsyncDelayedTask(this,new Runnable(){ public void run(){
+            System.out.println("Bouncer> Login lock lifted");
+            ((Bouncer)Bukkit.getServer().getPluginManager().getPlugin("Bouncer")).loginLock = false;
+        } },20 * 12); //12 seconds later
     }
     
     public void onDisable(){

@@ -3,7 +3,7 @@ main: com.minecarts.bouncer.Bouncer
 version: 1.0.3
 website: http://minecarts.com
 author: Verrier
-depend: [DBConnector, ObjectData, BarrensChat]
+depend: [DBConnector, ObjectData]
 description: >
              A player connection and disconnection support plugin
 commands:
