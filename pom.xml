@@ -42,8 +42,8 @@
     </dependency>
     <dependency>
       <groupId>com.minecarts</groupId>
-      <artifactId>BarrensChat</artifactId>
-      <version>1.0.8</version>
+      <artifactId>ObjectData</artifactId>
+      <version>1.0.2</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
