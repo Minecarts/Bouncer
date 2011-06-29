@@ -7,7 +7,6 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 import java.text.MessageFormat;
