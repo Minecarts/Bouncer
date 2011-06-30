@@ -5,6 +5,12 @@
   <artifactId>Bouncer</artifactId>
   <name>Bouncer</name>
   <url>http://www.minecarts.com</url>
+  <repositories>
+    <repository>
+      <id>nexus</id>
+      <url>http://artifactory.jazer.com/nexus/content/repositories/releases/</url>
+    </repository>
+  </repositories>
   <build>
       <resources>
           <resource>
