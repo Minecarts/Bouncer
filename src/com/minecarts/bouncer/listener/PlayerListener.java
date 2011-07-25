@@ -7,8 +7,11 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
+
+import java.awt.*;
 import java.text.MessageFormat;
 
 import com.minecarts.barrenschat.cache.CacheIgnore;
@@ -112,9 +115,15 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
     }
 
+    //Clear any kick or timeout messages
+    @Override
+    public void onPlayerKick(PlayerKickEvent e){
+        e.setLeaveMessage(null);
+    }
+
     private void delayedOptionalMessage(String message, Player player){
         Runnable delayedSend = new DelayedSend(message, player, plugin);
-        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 12); //12 seconds later
+        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 15); //12 seconds later
         this.playerFlagged.put(player.getName(), taskId);
     }
     
