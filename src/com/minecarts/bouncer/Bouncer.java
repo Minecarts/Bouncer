@@ -39,8 +39,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Low, this);
         pm.registerEvent(Event.Type.PLAYER_PRELOGIN, this.playerListener, Event.Priority.Low, this);
         pm.registerEvent(Event.Type.PLAYER_LOGIN, this.playerListener, Event.Priority.Low, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Monitor, this);
-        pm.registerEvent(Event.Type.PLAYER_KICK, this.playerListener, Event.Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Low, this);
+        pm.registerEvent(Event.Type.PLAYER_KICK, this.playerListener, Event.Priority.Low, this);
         
         //Register commands
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
