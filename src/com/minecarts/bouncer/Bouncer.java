@@ -55,6 +55,6 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     }
     
     public void onDisable(){
-        
+        this.getServer().getScheduler().cancelTasks(this);
     }
 }
