@@ -49,6 +49,15 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             return;
         }
 
+        //Development / op debug mode
+        if(plugin.getConfiguration().getBoolean("locked",false)){
+            if(!e.getPlayer().isOp()){
+                e.setKickMessage(Bouncer.maintenance);
+                e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                return;
+            }
+        }
+
         if(plugin.getConfiguration().getBoolean("whitelist",false)){
             //Check the whitelist
             switch(plugin.dbHelper.getWhitelistStatus(e.getPlayer().getName().toLowerCase())){
