@@ -16,6 +16,40 @@ public class DBHelper {
     public DBHelper(Bouncer plugin){
         this.plugin = plugin;
     }
+
+    public enum WhitelistStatus{
+        NOT_ON_LIST,
+        EXPIRED,
+        ON_LIST
+    }
+
+    public WhitelistStatus getWhitelistStatus(String player){
+        WhitelistStatus result = WhitelistStatus.NOT_ON_LIST;
+        try{
+            Connection conn = this.getConnection();
+            PreparedStatement ps = conn.prepareStatement("SELECT (`expireTime` <= NOW()) AS expired FROM `whitelist` WHERE `player` = ? LIMIT 1");
+            if(ps == null){
+                plugin.log.warning("GetWhitelist query failed");
+                conn.close();
+            }
+            ps.setString(1, player);
+            ResultSet set = ps.executeQuery();
+            if(set.next()) {
+                if(set.getBoolean("expired")){
+                    result = WhitelistStatus.EXPIRED;
+                } else {
+                    result = WhitelistStatus.ON_LIST;
+                }
+            }
+            set.close();
+            ps.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public String isIdentiferBanned(String identifier){
         String result = null;
         try{

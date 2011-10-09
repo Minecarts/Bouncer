@@ -1,6 +1,6 @@
 name: Bouncer
 main: com.minecarts.bouncer.Bouncer
-version: 1.0.3
+version: ${pom.version}
 website: http://minecarts.com
 author: Verrier
 depend: [DBConnector, ObjectData, BarrensChat]

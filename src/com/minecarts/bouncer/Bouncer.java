@@ -23,7 +23,9 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         
         public boolean loginLock = true;
 	
-	public final String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
+	public final static String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
+    public final static String whitelistMissing = ChatColor.GRAY + "Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to add your name to our whitelist.";
+    public final static String whitelistExpired = ChatColor.GRAY + "Your whitelist entry has expired. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to reapply.";
 	
 	public final PlayerListener playerListener = new PlayerListener(this);
 

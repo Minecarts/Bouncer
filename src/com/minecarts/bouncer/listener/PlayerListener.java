@@ -1,5 +1,6 @@
 package com.minecarts.bouncer.listener;
 
+import com.minecarts.bouncer.helper.DBHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -23,7 +24,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public PlayerListener(Bouncer plugin){
         this.plugin = plugin;
     }
-//Bans
+//Bans and whitelist support
     @Override
     public void onPlayerPreLogin(PlayerPreLoginEvent e){
         if(plugin.loginLock){
@@ -39,21 +40,38 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
     }
     @Override
-    public void onPlayerLogin(PlayerLoginEvent e){       
+    public void onPlayerLogin(PlayerLoginEvent e){
+        //Bans - Have top priority
         String reason = plugin.dbHelper.isIdentiferBanned(e.getPlayer().getName());
         if(reason != null){
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
             e.setKickMessage(reason);
             return;
         }
+
+        if(plugin.getConfiguration().getBoolean("whitelist",false)){
+            //Check the whitelist
+            switch(plugin.dbHelper.getWhitelistStatus(e.getPlayer().getName().toLowerCase())){
+                case NOT_ON_LIST:
+                    e.setKickMessage(Bouncer.whitelistMissing);
+                    e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                    return;
+                case EXPIRED:
+                    e.setKickMessage(Bouncer.whitelistExpired);
+                    e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                    return;
+            }
+        }
+
+        //Check if the server is full if a sub is connecting
         if(e.getResult() == Result.KICK_FULL){
             if(plugin.objectData.shared.get(e.getPlayer(), "subscriptionType") != null){
                 Player[] online = Bukkit.getServer().getOnlinePlayers();
-                online[online.length - 1].kickPlayer(plugin.fullMessage); //Kick the most recent connecting player
+                online[online.length - 1].kickPlayer(Bouncer.fullMessage); //Kick the most recent connecting player
                 e.setResult(Result.ALLOWED); //And let the subscriber connect
                 return;
             }
-            e.setKickMessage(plugin.fullMessage);
+            e.setKickMessage(Bouncer.fullMessage);
         }
     }
 //Login messages
