@@ -1,6 +1,5 @@
 package com.minecarts.bouncer.listener;
 
-import com.minecarts.bouncer.helper.DBHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -12,7 +11,6 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 
-import java.awt.*;
 import java.text.MessageFormat;
 
 import com.minecarts.barrenschat.cache.CacheIgnore;
