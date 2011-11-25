@@ -110,8 +110,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             }
         }
 
-        //If it's not blank, it's a valid message and lets send it!
-        if(displayMessage != null && !displayMessage.equals("")){
+        //If it's not intentionally blank, it's a valid message and lets send it!
+        if(displayMessage != null && format != null && !format.equals("")){
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
                 player.sendMessage(displayMessage); 
@@ -135,7 +135,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
         }
 
-        if(displayMessage != null && !displayMessage.equals("")){
+        if(displayMessage != null && format != null && !format.equals("")){
             this.delayedOptionalMessage(displayMessage, e.getPlayer());
         }
     }
