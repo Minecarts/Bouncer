@@ -135,7 +135,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
         }
 
-        if(displayMessage != null && format != null && !format.equals("")){
+        if(displayMessage != null && plugin.dbHelper.getKey("Bouncer_Hidden", playerName) == null){
             this.delayedOptionalMessage(displayMessage, e.getPlayer());
         }
     }
