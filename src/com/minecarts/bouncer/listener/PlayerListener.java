@@ -111,7 +111,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
 
         //If it's not intentionally blank, it's a valid message and lets send it!
-        if((displayMessage != null && format != null && !format.equals("")) || plugin.dbHelper.getKey("Hints_FirstJoin", playerName) == null){
+        if((displayMessage != null && plugin.dbHelper.getKey("Bouncer_Hidden", playerName) == null)){
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
                 player.sendMessage(displayMessage); 
