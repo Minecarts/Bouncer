@@ -33,32 +33,32 @@
   </build>
   <dependencies>
     <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-      <type>jar</type>
-      <scope>compile</scope>
+        <groupId>org.bukkit</groupId>
+        <artifactId>bukkit</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <type>jar</type>
+        <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.minecarts</groupId>
-      <artifactId>DBConnector</artifactId>
-      <version>1.0.0</version>
-      <type>jar</type>
-      <scope>compile</scope>
+        <groupId>com.minecarts</groupId>
+        <artifactId>DBQuery</artifactId>
+        <version>1.4.4</version>
+        <type>jar</type>
+        <scope>compile</scope>
+        </dependency>
+    <dependency>
+        <groupId>com.minecarts</groupId>
+        <artifactId>ObjectData</artifactId>
+        <version>1.0.2</version>
+        <type>jar</type>
+        <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.minecarts</groupId>
-      <artifactId>ObjectData</artifactId>
-      <version>1.0.2</version>
-      <type>jar</type>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.minecarts</groupId>
-      <artifactId>BarrensChat</artifactId>
-      <version>1.0.8</version>
-      <type>jar</type>
-      <scope>compile</scope>
+        <groupId>com.minecarts</groupId>
+        <artifactId>BarrensChat</artifactId>
+        <version>1.0.8</version>
+        <type>jar</type>
+        <scope>compile</scope>
     </dependency>
   </dependencies>
   <distributionManagement>
