@@ -72,6 +72,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 
         //Check if the server is full if a sub is connecting
         if(e.getResult() == Result.KICK_FULL){
+            //TODO, change this to a permissions check
+            //TODO if(e.getPlayer().hasPermission('subscriber") ...
             if(plugin.objectData.shared.get(e.getPlayer(), "subscriptionType") != null){
                 Player[] online = Bukkit.getServer().getOnlinePlayers();
                 online[online.length - 1].kickPlayer(Bouncer.fullMessage); //Kick the most recent connecting player
@@ -86,15 +88,19 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public void onPlayerJoin(PlayerJoinEvent e){
         String playerName = e.getPlayer().getName();
         String playerDisplayName = e.getPlayer().getDisplayName();
-        String format = plugin.dbHelper.getJoinMessage(playerName);
+        String format = null;
+        if(e.getPlayer().hasPermission("subscriber")){ //Only fetch the join message if they're a subscriber
+            format = plugin.dbHelper.getJoinMessage(playerName);
+        }
         String displayMessage = null;
 
         //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setJoinMessage(null);
+
         //Determine the format of the message
         if(format != null && !format.equals("")){
             displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
-        } else if(plugin.dbHelper.getKey("Hints_FirstJoin", playerName) == null){
+        } else if(e.getPlayer().getFirstPlayed() == 0){
             displayMessage = ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!";
         } else {
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged in.";
@@ -111,7 +117,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
 
         //If it's not intentionally blank, it's a valid message and lets send it!
-        if((displayMessage != null && plugin.dbHelper.getKey("Bouncer_Hidden", playerName) == null)){
+        if((displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_login"))){
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
                 player.sendMessage(displayMessage); 
