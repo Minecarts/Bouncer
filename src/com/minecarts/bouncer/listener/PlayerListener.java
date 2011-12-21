@@ -117,7 +117,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
 
         //If it's not intentionally blank, it's a valid message and lets send it!
-        if((displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_login"))){
+        if((displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_mode"))){
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
                 if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
                 player.sendMessage(displayMessage); 
@@ -141,7 +141,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
         }
 
-        if(displayMessage != null && plugin.dbHelper.getKey("Bouncer_Hidden", playerName) == null){
+        if(displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_mode")){
             this.delayedOptionalMessage(displayMessage, e.getPlayer());
         }
     }

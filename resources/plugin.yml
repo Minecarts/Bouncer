@@ -7,7 +7,14 @@ depend: [DBConnector, ObjectData, BarrensChat]
 description: >
              A player connection and disconnection support plugin
 commands:
-  bouncer:
-    description: Access to the bouncer functions
-    usage: /<command>
+    bouncer:
+        description: Access to the bouncer functions
+        usage: /<command>
+permissions:
+    bouncer.stealth_mode:
+        description: "Do not display the login / logout messages for this user"
+        default: false
+    bouncer.admin:
+        description: "Administrative command access to bouncer"
+        default: op
     
