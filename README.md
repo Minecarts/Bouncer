@@ -1,36 +1,17 @@
-##Configuring Ant in Eclipse for build.xml
-I've included a quick little build.xml file. In order to use this, you'll need to set two properties in eclipse.
+# **Bouncer** #
+Bouncer is a MySQL backed plugin for Bukkit minecraft servers that provides three core features.
 
--  Go to: Window -> Preferences -> Ant -> Runtime -> Properties (tab)
+## Join/Leave throttling ##
+On larger servers when you have players joining and leaving constantly, the constant spam of messages can be overwhelming. Bouncer allows you to throttle these messages so that if someone leaves and rejoins within X seconds, no message will display. 
 
-Now, you'll need to either add the following properties to the global properties:
+This keeps the chat clean, and the users happy.. and we all know happy users are important.
 
-    Name: bukkit.jar 
-    Value: /path/to/bukkit.jar
+## Custom join and leave messages ##
+This plugin allows users to have custom join and leave messages to the server, giving users a bit of customizable flare when joining the server. For example: instead of the "Bob joined the server.", it could instead read "Bob has come for ALL THE DIAMONDS!"
 
-    Name: minecraft.dir
-    Value: /path/to/minecraft/server/root
+In addition to the custom message, the first time a new player joins the server, he is given a custom message that stands out. Doing this allows other players to recognize a new player and give him a proper welcome and friendly advice on where to build or mine.
 
-Or, you can add the following content to a file, and import it under the "Global property files" section:
+## IP and nickname access control ##
+Acting as an alternative to the native minecraft ban control, Bouncer allows you to grant or deny access to your server based upon IP or Nickname. 
 
-    bukkit.jar=C:/dev/Minecraft/Bukkit/Bukkit/target/bukkit-0.0.1-SNAPSHOT.jar
-    minecraft.dir=C:/Minecraft
-  
-##Using this template in Eclipse
-
-1.  Assuming you have eGit installed; File, Import, Git -> Project from Git
-2.  Clone this repo into your development folder (remeber project source and git source must be in the same directory) (Example Destination: C:\dev\Eclipse\MyPlugin)
-3.  Click next and select "Use the New Projects Wizard" and click Finish
-4.  Select Java -> Java Project and click Next
-5.  Project Name should match the one in step 2 (MyPlugin), and the location should match as well (C:\dev\Eclipse).
-    
-    If you did this correctly, you should see "The wizard will automatically configure the JRE and the project layout based on the existing source"
-
-6.  Click finish to create your project
-7.  Add the bukkit jar to your build path and rename all the "templateplugin" instances. Some spots you will need to rename are:
-     -  com.minecarts.__templateplugin__.*
-     -  com.minecarts.__templateplugin__.__TemplatePlugin__.java
-     -  plugin.yml
- 
-*The build.xml file should automatically detect the plugin name*
-
+When it comes to denying users, bans can have a limited durration which allows you to temporarily ban users for a 15 minutes instead of the indefinite bans by default.
