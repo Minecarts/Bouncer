@@ -1,12 +1,12 @@
 package com.minecarts.bouncer.listener;
 
+import com.minecarts.bouncer.helper.LoginStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
@@ -22,43 +22,37 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public PlayerListener(Bouncer plugin){
         this.plugin = plugin;
     }
+
 //Bans and whitelist support
     @Override
-    public void onPlayerPreLogin(PlayerPreLoginEvent e){
-        if(plugin.loginLock){
-            e.setResult(PlayerPreLoginEvent.Result.KICK_OTHER);
-            e.setKickMessage("Server is still starting. Please try again in a couple seconds.");
-            return;
-        }
-        
-        String reason = plugin.dbHelper.isIdentiferBanned(e.getAddress().toString());
-        if(reason != null){
-            e.setResult(PlayerPreLoginEvent.Result.KICK_BANNED);
-            e.setKickMessage(reason);
-        }
-    }
-    @Override
     public void onPlayerLogin(PlayerLoginEvent e){
-        //Bans - Have top priority
-        String reason = plugin.dbHelper.isIdentiferBanned(e.getPlayer().getName());
-        if(reason != null){
+
+        //Do our ban and whitelist queries (sync)
+        plugin.doIdentifierCheck(e.getKickMessage(),e.getPlayer().getName());
+        if(plugin.getConfig().getBoolean("whitelist")){
+            plugin.doWhitelistCheck(e.getKickMessage(), e.getPlayer().getName());
+        }
+
+        //Check the status of the bans
+        LoginStatus status = plugin.getLoginStatus(e.getPlayer().getName());
+        if(status.isBanned){
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-            e.setKickMessage(reason);
+            e.setKickMessage(status.banReason);
             return;
         }
 
         //Development / op debug mode
-        if(plugin.getConfiguration().getBoolean("locked",false)){
-            if(!e.getPlayer().isOp()){
-                e.setKickMessage(Bouncer.maintenance);
+        if(plugin.getConfig().getBoolean("locked",false)){
+            if(!e.getPlayer().hasPermission("bouncer.admin")){
+                e.setKickMessage(ChatColor.GRAY + plugin.getConfig().getString("messages.ADMIN_LOCK"));
                 e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
                 return;
             }
         }
 
-        if(plugin.getConfiguration().getBoolean("whitelist",false)){
-            //Check the whitelist
-            switch(plugin.dbHelper.getWhitelistStatus(e.getPlayer().getName().toLowerCase())){
+        //Check the status of the whitelist, if whitelisting is enabled
+        if(plugin.getConfig().getBoolean("whitelist")){
+            switch(status.whitelistStatus){
                 case NOT_ON_LIST:
                     e.setKickMessage(Bouncer.whitelistMissing);
                     e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
@@ -72,9 +66,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 
         //Check if the server is full if a sub is connecting
         if(e.getResult() == Result.KICK_FULL){
-            //TODO, change this to a permissions check
-            //TODO if(e.getPlayer().hasPermission('subscriber") ...
-            if(plugin.objectData.shared.get(e.getPlayer(), "subscriptionType") != null){
+            if(e.getPlayer().hasPermission("subscriber")){
                 Player[] online = Bukkit.getServer().getOnlinePlayers();
                 online[online.length - 1].kickPlayer(Bouncer.fullMessage); //Kick the most recent connecting player
                 e.setResult(Result.ALLOWED); //And let the subscriber connect
@@ -86,64 +78,14 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 //Login messages
     @Override
     public void onPlayerJoin(PlayerJoinEvent e){
-        String playerName = e.getPlayer().getName();
-        String playerDisplayName = e.getPlayer().getDisplayName();
-        String format = null;
-        if(e.getPlayer().hasPermission("subscriber")){ //Only fetch the join message if they're a subscriber
-            format = plugin.dbHelper.getJoinMessage(playerName);
-        }
-        String displayMessage = null;
-
-        //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setJoinMessage(null);
-
-        //Determine the format of the message
-        if(format != null && !format.equals("")){
-            displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
-        } else if(e.getPlayer().getFirstPlayed() == 0){
-            displayMessage = ChatColor.WHITE + playerDisplayName + " has joined the server for the first time!";
-        } else {
-            displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged in.";
-        }
-
-        //Check to see if it's a rejoin 
-        if(this.playerFlagged.containsKey(playerName)){
-            Integer taskId = this.playerFlagged.remove(playerName);
-            //e.setJoinMessage(null);  //They rejoined, no join message
-            displayMessage = null;
-            if(taskId != null){
-                Bukkit.getServer().getScheduler().cancelTask(taskId); //Cancel leave message from showing
-            }
-        }
-
-        //If it's not intentionally blank, it's a valid message and lets send it!
-        if((displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_mode"))){
-            for(Player player : Bukkit.getServer().getOnlinePlayers()){
-                if(CacheIgnore.isIgnoring(player, e.getPlayer())) continue;
-                player.sendMessage(displayMessage); 
-            }
-        }
+        plugin.doLoginMessage(e.getPlayer());
     }
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
-        String playerName = e.getPlayer().getName();
-        String playerDisplayName = e.getPlayer().getDisplayName();
-        String format = plugin.dbHelper.getQuitMessage(playerName);
-        String displayMessage = "";
-        
       //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setQuitMessage(null);
-        
-        //Determine the format of the message
-        if(format != null && !format.equals("")){
-            displayMessage = MessageFormat.format("{0}" + format,ChatColor.GRAY,playerDisplayName);
-        } else {
-            displayMessage = ChatColor.GRAY + playerDisplayName + ChatColor.GRAY + " logged out.";
-        }
-
-        if(displayMessage != null && !e.getPlayer().hasPermission("bouncer.stealth_mode")){
-            this.delayedOptionalMessage(displayMessage, e.getPlayer());
-        }
+        plugin.doLogoutMessage(e.getPlayer());
     }
 
     //Clear any kick or timeout messages
@@ -152,30 +94,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         e.setLeaveMessage(null);
     }
 
-    private void delayedOptionalMessage(String message, Player player){
-        Runnable delayedSend = new DelayedSend(message, player, plugin);
-        int taskId = plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin,delayedSend,20 * 15); //12 seconds later
-        this.playerFlagged.put(player.getName(), taskId);
-    }
-    
-    private class DelayedSend implements Runnable{
-        private String message;
-        private Player playerLeft;
-        private Bouncer plugin;
 
-        public DelayedSend(String message, Player playerLeft, Bouncer plugin){
-            this.message = message;
-            this.playerLeft = playerLeft;
-            this.plugin = plugin;
-        }
-        
-        public void run(){
-            Integer taskId = plugin.playerListener.playerFlagged.remove(playerLeft.getName());
-            for(Player player : Bukkit.getServer().getOnlinePlayers()){
-                if(CacheIgnore.isIgnoring(player, playerLeft)) continue;
-                player.sendMessage(message); 
-            }
-        }
-    }
     
 }

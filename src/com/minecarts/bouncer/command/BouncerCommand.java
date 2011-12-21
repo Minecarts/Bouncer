@@ -13,6 +13,24 @@ public class BouncerCommand extends CommandHandler{
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        return true;
+        if(!sender.hasPermission("bouncer.admin")) return true;
+
+        if(args[0].equalsIgnoreCase("reload")){
+            plugin.reloadConfig();
+            return true;
+        }
+
+        if(args[0].equalsIgnoreCase("lock")){
+            //Admin lock ON!
+            if(plugin.getConfig().getBoolean("locked")){
+                sender.sendMessage("Server is now unlocked.");
+                plugin.getConfig().set("locked",false);
+            } else {
+                sender.sendMessage("Server is now locked.");
+                plugin.getConfig().set("locked",true);
+            }
+            return true;
+        }
+        return false;
     }
 }

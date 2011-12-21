@@ -1,0 +1,6 @@
+locked: false #Start up with admin lock active
+whitelist: false #Start up with whitelist active
+messages:
+    ADMIN_LOCK: "The admins are currently working on the server. Please try again shortly!"
+db:
+    provider: "minecarts"
