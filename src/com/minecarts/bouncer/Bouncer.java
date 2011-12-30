@@ -99,6 +99,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                 if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")){
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
                         if(CacheIgnore.isIgnoring(p,player)) continue;
+                        if(p.equals(player) && !player.hasPlayedBefore()) continue; //Skip the welcome message for the own player
                         p.sendMessage(displayMessage);
                     }
                 }
