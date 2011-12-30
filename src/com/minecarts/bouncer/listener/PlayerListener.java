@@ -77,9 +77,15 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     }
 //Login messages
     @Override
-    public void onPlayerJoin(PlayerJoinEvent e){
+    public void onPlayerJoin(final PlayerJoinEvent e){
         e.setJoinMessage(null);
-        plugin.doLoginMessage(e.getPlayer());
+        //Do the login message 1 second later to allow for permissions to be set
+        //  on this player
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,new Runnable() {
+            public void run() {
+                plugin.doLoginMessage(e.getPlayer());
+            }
+        },10); //This might need to be upped if TPS drops below 10
     }
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
