@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import com.minecarts.barrenschat.cache.CacheIgnore;
+import com.minecarts.bouncer.command.StopCommand;
 import com.minecarts.bouncer.helper.LoginStatus;
 import com.minecarts.dbquery.DBQuery;
 import org.bukkit.Bukkit;
@@ -49,6 +50,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 
         //Register commands
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
+        getCommand("stop").setExecutor(new StopCommand(this));
 
         log("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
     }

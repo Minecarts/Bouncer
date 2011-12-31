@@ -10,11 +10,18 @@ commands:
     bouncer:
         description: Access to the bouncer functions
         usage: /<command>
+    stop:
+        aliases: [shutdown]
+        description: Stop the server gracefully
+        usage: /<command> [now | time in minutes]
 permissions:
     bouncer.stealth_mode:
         description: "Do not display the login / logout messages for this user"
         default: false
     bouncer.admin:
         description: "Administrative command access to bouncer"
+        default: op
+    bouncer.stop:
+        description: "Ability to gracefully stop the server"
         default: op
     
