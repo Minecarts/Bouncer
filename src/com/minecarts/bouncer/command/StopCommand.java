@@ -21,6 +21,8 @@ public class StopCommand extends CommandHandler {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if(!sender.hasPermission("bouncer.stop")) return true;
+
         Integer minutes;
         if(args.length > 0 && args[0].equalsIgnoreCase("abort")){
             if(taskId != 0){
