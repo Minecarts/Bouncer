@@ -5,16 +5,16 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import com.minecarts.barrenschat.cache.CacheIgnore;
-import com.minecarts.bouncer.command.StopCommand;
+import com.minecarts.bouncer.command.*;
 import com.minecarts.bouncer.helper.LoginStatus;
 import com.minecarts.dbquery.DBQuery;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.event.*;
 import org.bukkit.ChatColor;
-import com.minecarts.bouncer.command.BouncerCommand;
 import com.minecarts.bouncer.listener.*;
 import com.minecarts.objectdata.ObjectData;
 import com.minecarts.barrenschat.BarrensChat;
@@ -51,6 +51,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         //Register commands
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
         getCommand("stop").setExecutor(new StopCommand(this));
+        getCommand("ban").setExecutor(new BanCommand(this));
+        getCommand("kick").setExecutor(new KickCommand(this));
 
         log("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
     }
@@ -157,6 +159,21 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
             }
         }.sync().fetchOne(playerName);
     }
+    
+    public void banIdentifier(final String identifier, final Integer duration, final String reason, final CommandSender sender){
+        new Query("INSERT INTO `player_bans` (identifier,reason,bannedBy,bannedTime,expireTime) VALUES (?,?,?,NOW(),TIMESTAMPADD(MINUTE, ?, NOW()))") {
+            @Override
+            public void onInsertId(Integer id) {
+                sender.sendMessage("Banned " + identifier + " for " + duration + " minutes with message: " + reason);
+                log(sender.getName() + " banned " + identifier + " for " + duration + " minutes with message: " + reason);
+            }
+            @Override
+            public void onException(Exception x, FinalQuery query) {
+                sender.sendMessage("Ban failed: " + x.getMessage());
+                x.printStackTrace();
+            }
+        }.insertId(identifier,reason,sender.getName(),duration);
+    }
 
     private void delayedOptionalMessage(String message, Player player){
         Runnable delayedSend = new DelayedSend(message, player, this);
@@ -192,6 +209,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         @Override
         public void onComplete(FinalQuery query) {
             if(query.elapsed() > 500) {
+                log(query.toString());
                 log(MessageFormat.format("Slow query took {0,number,#} ms", query.elapsed()));
             }
         }

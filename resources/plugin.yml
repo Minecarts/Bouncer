@@ -14,6 +14,12 @@ commands:
         aliases: [shutdown]
         description: Stop the server gracefully
         usage: /<command> [now | time in minutes]
+    ban:
+        description: Ban players from the server
+        usage: /<command> name [time] [reason]
+    kick:
+        description: Kick players from the server
+        usage: /<command> name [reason]
 permissions:
     bouncer.stealth_mode:
         description: "Do not display the login / logout messages for this user"
@@ -23,5 +29,11 @@ permissions:
         default: op
     bouncer.stop:
         description: "Ability to gracefully stop the server"
+        default: op
+    bouncer.ban:
+        description: "Ability to ban players from the server"
+        default: op
+    bouncer.kick:
+        description: "Ability to kick players from the server"
         default: op
     
