@@ -54,6 +54,10 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("kick").setExecutor(new KickCommand(this));
 
+        //Save the default config
+        getConfig().options().copyDefaults(true);
+        this.saveConfig();
+
         log("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
     }
     public void onDisable(){
@@ -145,19 +149,19 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     }
 
     //TODO - whitelist support with IPs and stuff.
-    public void doWhitelistCheck(String ip,final String playerName){
-        new Query("SELECT (`expireTime` <= NOW()) AS expired FROM `whitelist` WHERE `player` = ? LIMIT 1") {
+    public void doWhitelistCheck(final String ip,final String playerName){
+        new Query("SELECT (`expires` <= NOW()) AS expired FROM `whitelist` WHERE `player` = ? AND `ip` = INET_ATON(?) LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
                 if(row == null){
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.NOT_ON_LIST);
-                } else if ((Boolean) row.get("expired")){
+                } else if ((Long)row.get("expired") == 1){
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.EXPIRED);
                 } else {
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.OK);
                 }
             }
-        }.sync().fetchOne(playerName);
+        }.sync().fetchOne(playerName,ip);
     }
     
     public void banIdentifier(final String identifier, final Integer duration, final String reason, final CommandSender sender){
