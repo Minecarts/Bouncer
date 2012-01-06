@@ -20,7 +20,7 @@ public class KickCommand extends CommandHandler {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(!sender.hasPermission("bouncer.kick")) return true;
-        String reason = "You have been kicked.";
+        String reason = plugin.getConfig().getString("messages.KICK");
         List<Player> players = Bukkit.matchPlayer(args[0]);
         if(players.size() > 1 || players.size() == 0){
             sender.sendMessage("Error: Matched " + players.size() + " players when attempting to kick.");

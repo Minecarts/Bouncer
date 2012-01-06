@@ -11,8 +11,8 @@ commands:
         description: Access to the bouncer functions
         usage: /<command>
     stop:
-        aliases: [shutdown]
-        description: Stop the server gracefully
+        aliases: [shutdown, restart]
+        description: Stop or restart the server gracefully
         usage: /<command> [now | time in minutes]
     ban:
         description: Ban players from the server

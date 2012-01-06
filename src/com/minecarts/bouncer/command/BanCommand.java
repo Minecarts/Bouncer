@@ -57,7 +57,7 @@ public class BanCommand extends CommandHandler {
                 }
             }
 
-        reason = (reason.equals("")) ? "You are no longer welcome here." : reason;
+        reason = (reason.equals("")) ? plugin.getConfig().getString("messages.BAN") : reason;
         plugin.banIdentifier(identifier,duration,reason,sender);
         if(players.size() == 1){
             players.get(0).kickPlayer(reason);

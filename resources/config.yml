@@ -2,5 +2,11 @@ locked: false #Start up with admin lock active
 whitelist: false #Start up with whitelist active
 messages:
     ADMIN_LOCK: "The admins are currently working on the server. Please try again shortly!"
+    BAN: "You are no longer welcome here."
+    KICK: "You have been kicked."
+    SHUTDOWN_ANNOUNCE: "Server going offline for maintenance in {0} {1}."
+    SHUTDOWN_KICK: "Server is going offline for maintenance, we will be back as soon as possible!"
+    RESTART_ANNOUNCE: "Server restarting in {0} {1}."
+    RESTART_KICK: "Server is restarting, please reconnect to the server at your convenience."
 db:
     provider: "minecarts"

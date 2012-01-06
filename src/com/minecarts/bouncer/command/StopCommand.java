@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.MessageFormat;
+
 import static org.bukkit.Bukkit.*;
 
 
@@ -56,6 +58,17 @@ public class StopCommand extends CommandHandler {
         sender.sendMessage("Shutdown task started.");
         plugin.log("Shutdown task started by " + sender.getName() + " for " + minutes  + " minutes");
 
+
+        //Determine the shutdown message from the command
+        String am = plugin.getConfig().getString("messages.SHUTDOWN_ANNOUNCE");
+        String km = plugin.getConfig().getString("messages.SHUTDOWN_KICK");
+        if(label.equalsIgnoreCase("restart")){
+            am = plugin.getConfig().getString("messages.RESTART_ANNOUNCE");
+            km = plugin.getConfig().getString("messages.RESTART_KICK");
+        }
+        final String announceMessage = am;
+        final String kickMessage = km;
+        
         final Integer startingSeconds = minutes * 60;
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,new Runnable() {
             private int remainingSeconds = startingSeconds + 1;
@@ -64,28 +77,22 @@ public class StopCommand extends CommandHandler {
                 int remainingMinutes = remainingSeconds / 60;
                 if(remainingMinutes > 0){ //Handle the minutes
                     if((remainingMinutes >= 5 && remainingSeconds % (5 * 60) == 0) || remainingSeconds == 2 * 60){
-                        broadcastMessage(ChatColor.YELLOW + "Server going offline for maintenance in " + remainingMinutes + " minutes.");
+                        broadcastMessage(ChatColor.YELLOW + MessageFormat.format(announceMessage,remainingMinutes,"minutes"));
                     }
                     if(remainingSeconds == 1 * 60){
-                        broadcastMessage(ChatColor.YELLOW + "Server going offline for maintenance in " + remainingMinutes + " minute.");
+                        broadcastMessage(ChatColor.YELLOW + MessageFormat.format(announceMessage,remainingMinutes,"minute"));
                     }
                     return;
                 }
 
-                if(remainingSeconds == 30 || remainingSeconds == 15){
-                    broadcastMessage(ChatColor.YELLOW + "Server going offline for maintenance in " + remainingSeconds + " seconds.");
-                    return;
-                }
-
-                if(remainingSeconds == 5){
-                    broadcastMessage(ChatColor.YELLOW + "Server going offline in " + remainingSeconds + " seconds. Please log out.");
+                if(remainingSeconds == 30 || remainingSeconds == 15 || remainingSeconds == 5){
+                    broadcastMessage(ChatColor.YELLOW + MessageFormat.format(announceMessage,remainingSeconds,"seconds"));
                     return;
                 }
 
                 if(remainingSeconds == 0){ //Shut down NOW!
-                    broadcastMessage(ChatColor.YELLOW + "Server going offline for maintenance NOW.");
                     for(Player p : getOnlinePlayers()){
-                        p.kickPlayer(ChatColor.GRAY + "Server is going offline for maintenance, we will be back as soon as possible!");
+                        p.kickPlayer(ChatColor.GRAY + kickMessage);
                     }
                     getScheduler().cancelTask(taskId);
                     Bukkit.getServer().shutdown();
