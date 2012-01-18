@@ -11,10 +11,6 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 
-import java.text.MessageFormat;
-
-import com.minecarts.barrenschat.cache.CacheIgnore;
-
 public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     private Bouncer plugin;
     private java.util.HashMap<String, Integer> playerFlagged = new java.util.HashMap<String, Integer>();
@@ -86,12 +82,19 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
                 plugin.doLoginMessage(e.getPlayer());
             }
         },10); //This might need to be upped if TPS drops below 10
+
+        //TODO Compare locations and teleport them if they're not matching
+        plugin.fetchLocation(e.getPlayer());
+
     }
     @Override
     public void onPlayerQuit(PlayerQuitEvent e){
       //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setQuitMessage(null);
         plugin.doLogoutMessage(e.getPlayer());
+
+      //Store this players logout location in player_mega
+        plugin.storeLocation(e.getPlayer());
     }
 
     //Clear any kick or timeout messages

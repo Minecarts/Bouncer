@@ -9,6 +9,7 @@ import com.minecarts.bouncer.command.*;
 import com.minecarts.bouncer.helper.LoginStatus;
 import com.minecarts.dbquery.DBQuery;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -133,6 +134,54 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
             loginStatus.put(playerName,new LoginStatus(status,reason));
         }
     }
+
+
+
+    public void storeLocation(final Player player){
+        final Location location = player.getLocation();
+        final String locString = MessageFormat.format("{0}:{1,number,#.####}:{2,number,#.####}:{3,number,#.####}:{4,number,#.####}:{5,number,#.####}",
+                location.getWorld().getName(),
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch()
+                );
+        new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE value=?") {
+            @Override
+            public void onInsertId(Integer id) {
+                //log("Set logout location for " + player.getName() + " to " + locString);
+            }
+        }.insertId(player.getName(),locString,locString);
+    }
+
+    public void fetchLocation(final Player player){
+        new Query("SELECT `value` FROM `player_meta` WHERE `player`=? AND `key`='Bouncer_LogoutLocation' LIMIT 1") {
+            @Override
+            public void onFetchOne(HashMap row) {
+                if(row == null) return;
+                String[] locationData = ((String)row.get("value")).split(":");
+                final Location loc = new Location(
+                        Bukkit.getWorld(locationData[0]),
+                        Double.parseDouble(locationData[1]),
+                        Double.parseDouble(locationData[2]),
+                        Double.parseDouble(locationData[3]),
+                        Float.parseFloat(locationData[4]),
+                        Float.parseFloat(locationData[5])
+                );
+                if(player.getLocation().distance(loc) > 1){
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(Bouncer.this,new Runnable() {
+                        public void run() {
+                            log(player.getName() + " logged in at an unexpected location, moved to " + loc);
+                            player.teleport(loc);
+                        }
+                    },1);
+                }
+                //log("Got location: " + row.get("value"));
+            }
+        }.fetchOne(player.getName());
+    }
+    
     
     
     public void doIdentifierCheck(String ip, final String playerName){
@@ -205,7 +254,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         }
     }
 
-    class Query extends com.minecarts.dbquery.Query {
+    public class Query extends com.minecarts.dbquery.Query {
         public Query(String sql) {
             super(Bouncer.this, dbq.getProvider(getConfig().getString("db.provider")), sql);
         }
