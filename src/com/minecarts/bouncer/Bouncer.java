@@ -169,7 +169,11 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                         Float.parseFloat(locationData[4]),
                         Float.parseFloat(locationData[5])
                 );
-                if(player.getLocation().distance(loc) > 1){
+
+                if(player.getLocation().getWorld() == null) return;
+                if(loc.getWorld() == null) return;
+
+                if(player.getLocation().getWorld() != loc.getWorld() || player.getLocation().distance(loc) > 1){
                     Bukkit.getScheduler().scheduleSyncDelayedTask(Bouncer.this,new Runnable() {
                         public void run() {
                             log(player.getName() + " logged in at an unexpected location, moved to " + loc);
