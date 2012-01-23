@@ -150,7 +150,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE `value`=?") {
             @Override
             public void onInsertId(Integer id) {
-                //log("Set logout location for " + player.getName() + " to " + locString);
+                log("Set logout location for " + player.getName() + " to " + locString);
             }
         }.insertId(player.getName(),locString,locString);
     }
@@ -169,6 +169,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                         Float.parseFloat(locationData[4]),
                         Float.parseFloat(locationData[5])
                 );
+
+                log("Fetched last location: " + locationData);
 
                 if(player.getLocation().getWorld() == null) return;
                 if(loc.getWorld() == null) return;
