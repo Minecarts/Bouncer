@@ -147,7 +147,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                 location.getYaw(),
                 location.getPitch()
                 );
-        new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE value=?") {
+        new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE `value`=?") {
             @Override
             public void onInsertId(Integer id) {
                 //log("Set logout location for " + player.getName() + " to " + locString);
