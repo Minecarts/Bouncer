@@ -150,7 +150,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE `value`=?") {
             @Override
             public void onInsertId(Integer id) {
-                log("Set logout location for " + player.getName() + " to " + locString);
+                //log("Set logout location for " + player.getName() + " to " + locString);
             }
         }.insertId(player.getName(),locString,locString);
     }
@@ -170,11 +170,12 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                         Float.parseFloat(locationData[5])
                 );
 
-                log("Fetched last location for " + player.getName() + ": " + loc);
-                log("Found player location for " + player.getName() + "as : " + player.getLocation());
+                //log("Fetched last location for " + player.getName() + ": " + loc);
+                //log("Found player location for " + player.getName() + " as : " + player.getLocation());
 
                 if(player.getLocation().getWorld() == null) return;
                 if(loc.getWorld() == null) return;
+                if(player.isOnline()) return; //Fixes issue with players connecting to the server after lagging out
 
                 if(player.getLocation().getWorld() != loc.getWorld() || player.getLocation().distance(loc) > 1){
                     Bukkit.getScheduler().scheduleSyncDelayedTask(Bouncer.this,new Runnable() {
