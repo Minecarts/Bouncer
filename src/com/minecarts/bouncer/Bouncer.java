@@ -170,7 +170,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                         Float.parseFloat(locationData[5])
                 );
 
-                log("Fetched last location: " + locationData);
+                log("Fetched last location for " + player.getName() + ": " + loc);
 
                 if(player.getLocation().getWorld() == null) return;
                 if(loc.getWorld() == null) return;
