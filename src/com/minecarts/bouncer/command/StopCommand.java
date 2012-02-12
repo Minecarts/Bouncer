@@ -22,7 +22,7 @@ public class StopCommand extends CommandHandler {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         if(!sender.hasPermission("bouncer.stop")) return true;
 
         Integer minutes;
@@ -91,11 +91,35 @@ public class StopCommand extends CommandHandler {
                 }
 
                 if(remainingSeconds == 0){ //Shut down NOW!
-                    for(Player p : getOnlinePlayers()){
-                        p.kickPlayer(ChatColor.GRAY + kickMessage);
+                    //Activate the login lock
+                    plugin.getConfig().set("locked", true);
+
+                    //Kick players every N seconds until no more players online
+                    plugin.kickTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,new Runnable(){
+                        public void run() {
+                            int t = 0;
+                            int groupSize = plugin.getConfig().getInt("kick_group");
+                            for(Player p : getOnlinePlayers()){
+                                if(++t > groupSize) break; //Only kick N players at a time
+                                p.kickPlayer(ChatColor.GRAY + kickMessage);
+                            }
+                            int numPlayersRemaining = getOnlinePlayers().length;
+                            if(numPlayersRemaining == 0){
+                                plugin.log("All players have been kicked. Shutting down server.");
+                                Bukkit.getScheduler().cancelTask(plugin.kickTaskId);
+
+                                getScheduler().cancelTask(taskId);
+                                Bukkit.getServer().shutdown();
+
+                            } else {
+                                plugin.log("Kicked " + (t - 1) + " players. " + numPlayersRemaining + " players remaining.");
+                            }
+                        }
+                    },1,20 * plugin.getConfig().getInt("kick_delay"));
+
+                    if(label.equalsIgnoreCase("restart")){
+                        //TODO: If it's a restart command, launch the restart process
                     }
-                    getScheduler().cancelTask(taskId);
-                    Bukkit.getServer().shutdown();
                     return;
                 }
             }

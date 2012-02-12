@@ -2,6 +2,7 @@ package com.minecarts.bouncer;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.minecarts.barrenschat.cache.CacheIgnore;
@@ -32,6 +33,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     public final static String maintenance = ChatColor.GRAY + "Our admins are working on updating the server currently, please try again soon!";
 
     public final PlayerListener playerListener = new PlayerListener(this);
+    public int kickTaskId = 0;
 
     private HashMap<String,LoginStatus> loginStatus = new HashMap<String, LoginStatus>();
     private HashMap<String, Integer> playerFlagged = new HashMap<String, Integer>();
@@ -44,10 +46,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         barrensChat = (BarrensChat) pm.getPlugin("BarrensChat");
 
         //Register our events
-        pm.registerEvent(Event.Type.PLAYER_JOIN, this.playerListener, Event.Priority.Low, this);
-        pm.registerEvent(Event.Type.PLAYER_LOGIN, this.playerListener, Event.Priority.Low, this);
-        pm.registerEvent(Event.Type.PLAYER_QUIT, this.playerListener, Event.Priority.Low, this);
-        pm.registerEvent(Event.Type.PLAYER_KICK, this.playerListener, Event.Priority.Low, this);
+        pm.registerEvents(playerListener,this);
 
         //Register commands
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
@@ -59,7 +58,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         getConfig().options().copyDefaults(true);
         this.saveConfig();
 
-        log("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+        log("version " + pdf.getVersion() + " enabled.");
     }
     public void onDisable(){
 
@@ -284,8 +283,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         }
     }
 
-    public static void log(String msg){
-        System.out.println("Bouncer> " + msg);
+    public void log(String msg){
+        getLogger().log(Level.INFO,msg);
     }
 
 }
