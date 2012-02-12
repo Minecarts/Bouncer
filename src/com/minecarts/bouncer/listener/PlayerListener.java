@@ -3,6 +3,9 @@ package com.minecarts.bouncer.listener;
 import com.minecarts.bouncer.helper.LoginStatus;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -11,7 +14,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.entity.Player;
 import com.minecarts.bouncer.Bouncer;
 
-public class PlayerListener extends org.bukkit.event.player.PlayerListener{
+public class PlayerListener implements Listener {
     private Bouncer plugin;
     private java.util.HashMap<String, Integer> playerFlagged = new java.util.HashMap<String, Integer>();
     
@@ -20,8 +23,16 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     }
 
 //Bans and whitelist support
-    @Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerLogin(PlayerLoginEvent e){
+        //Development / op debug mode
+        if(plugin.getConfig().getBoolean("locked",false)){
+            if(!e.getPlayer().hasPermission("bouncer.admin")){
+                e.setKickMessage(ChatColor.GRAY + plugin.getConfig().getString("messages.ADMIN_LOCK"));
+                e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                return;
+            }
+        }
 
         //Do our ban and whitelist queries (sync)
         plugin.doIdentifierCheck(e.getKickMessage(),e.getPlayer().getName());
@@ -35,15 +46,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
             e.setKickMessage(status.banReason);
             return;
-        }
-
-        //Development / op debug mode
-        if(plugin.getConfig().getBoolean("locked",false)){
-            if(!e.getPlayer().hasPermission("bouncer.admin")){
-                e.setKickMessage(ChatColor.GRAY + plugin.getConfig().getString("messages.ADMIN_LOCK"));
-                e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-                return;
-            }
         }
 
         //Check the status of the whitelist, if whitelisting is enabled
@@ -72,7 +74,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
     }
 //Login messages
-    @Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(final PlayerJoinEvent e){
         e.setJoinMessage(null);
         //Do the login message 1 second later to allow for permissions to be set
@@ -87,7 +89,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         plugin.fetchLocation(e.getPlayer());
 
     }
-    @Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerQuit(PlayerQuitEvent e){
       //Always clear the message, because we send it to all players ourselves for ignore list support
         e.setQuitMessage(null);
@@ -96,13 +98,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
       //Store this players logout location in player_mega
         plugin.storeLocation(e.getPlayer());
     }
-
-    //Clear any kick or timeout messages
-    @Override
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerKick(PlayerKickEvent e){
-        e.setLeaveMessage(null);
+        e.setLeaveMessage(null);  //Clear any kick or timeout messages
     }
-
-
-    
 }
