@@ -2,6 +2,7 @@ locked: false #Start up with admin lock active
 whitelist: false #Start up with whitelist active
 kick_delay: 3 #Seconds between group of player kicking
 kick_group: 3 #Number of players per group to kick
+restart_script: "restart.sh"
 messages:
     ADMIN_LOCK: "The admins are currently working on the server. Please try again shortly!"
     BAN: "You are no longer welcome here."

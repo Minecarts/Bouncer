@@ -8,7 +8,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 
 import static org.bukkit.Bukkit.*;
 
@@ -118,7 +121,17 @@ public class StopCommand extends CommandHandler {
                     },1,20 * plugin.getConfig().getInt("kick_delay"));
 
                     if(label.equalsIgnoreCase("restart")){
-                        //TODO: If it's a restart command, launch the restart process
+                        Long osProcessId = Long.valueOf(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+                        final ArrayList<String> command = new ArrayList<String>();
+                        command.add(plugin.getConfig().getString("restart_script"));
+                        command.add(osProcessId.toString());
+                        final ProcessBuilder builder = new ProcessBuilder(command);
+                        try{
+                            builder.start();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            plugin.log("Could not launch restart process");
+                        }
                     }
                     return;
                 }
