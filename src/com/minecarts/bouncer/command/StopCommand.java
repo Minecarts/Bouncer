@@ -73,7 +73,7 @@ public class StopCommand extends CommandHandler {
         final String kickMessage = km;
         
         final Integer startingSeconds = minutes * 60;
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin,new Runnable() {
+        taskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin,new Runnable() {
             private int remainingSeconds = startingSeconds + 1;
             public void run() {
                 this.remainingSeconds--;
@@ -112,6 +112,21 @@ public class StopCommand extends CommandHandler {
                                 Bukkit.getScheduler().cancelTask(plugin.kickTaskId);
 
                                 getScheduler().cancelTask(taskId);
+
+                                if(label.equalsIgnoreCase("restart")){
+                                    Long osProcessId = Long.valueOf(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
+                                    final ArrayList<String> command = new ArrayList<String>();
+                                    command.add(plugin.getConfig().getString("restart_script"));
+                                    command.add(osProcessId.toString());
+                                    final ProcessBuilder builder = new ProcessBuilder(command);
+                                    try{
+                                        builder.start();
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                        plugin.log("Could not launch restart process");
+                                    }
+                                }
+
                                 Bukkit.getServer().shutdown();
 
                             } else {
@@ -119,20 +134,6 @@ public class StopCommand extends CommandHandler {
                             }
                         }
                     },1,20 * plugin.getConfig().getInt("kick_delay"));
-
-                    if(label.equalsIgnoreCase("restart")){
-                        Long osProcessId = Long.valueOf(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
-                        final ArrayList<String> command = new ArrayList<String>();
-                        command.add(plugin.getConfig().getString("restart_script"));
-                        command.add(osProcessId.toString());
-                        final ProcessBuilder builder = new ProcessBuilder(command);
-                        try{
-                            builder.start();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            plugin.log("Could not launch restart process");
-                        }
-                    }
                     return;
                 }
             }
