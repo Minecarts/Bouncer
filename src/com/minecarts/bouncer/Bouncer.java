@@ -66,11 +66,12 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 
 
     public void doLogoutMessage(final Player player){
+        final Boolean playerIsSubscriber = player.hasPermission("subscriber");
         new Query("SELECT value FROM `player_meta` WHERE `player` = ? AND `key` = ? LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
                 String displayMessage = null;
-                if(row == null || !player.hasPermission("subscriber")){
+                if(row == null || !playerIsSubscriber){
                     displayMessage = ChatColor.GRAY + player.getDisplayName() + ChatColor.GRAY + " logged out.";
                 } else {
                     displayMessage =  MessageFormat.format("{0}" + row.get("value"),ChatColor.GRAY,player.getDisplayName());
