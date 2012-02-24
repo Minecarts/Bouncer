@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.minecarts.barrenschat.cache.CacheIgnore;
 import com.minecarts.bouncer.command.*;
 import com.minecarts.bouncer.helper.LoginStatus;
 import com.minecarts.dbquery.DBQuery;
@@ -15,17 +14,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.event.*;
 import org.bukkit.ChatColor;
 import com.minecarts.bouncer.listener.*;
 import com.minecarts.objectdata.ObjectData;
-import com.minecarts.barrenschat.BarrensChat;
 
 public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     public final Logger log = Logger.getLogger("com.minecarts.bouncer");
     public DBQuery dbq;
     public ObjectData objectData;
-    public BarrensChat barrensChat;
 
     public final static String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
     public final static String whitelistMissing = ChatColor.GRAY + "Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to add your name to our whitelist.";
@@ -43,7 +39,6 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         PluginDescriptionFile pdf = getDescription();
         dbq = (DBQuery) pm.getPlugin("DBQuery");
         objectData = (ObjectData) pm.getPlugin("ObjectData");
-        barrensChat = (BarrensChat) pm.getPlugin("BarrensChat");
 
         //Register our events
         pm.registerEvents(playerListener,this);
@@ -107,7 +102,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 
                 if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")){
                     for(Player p : Bukkit.getServer().getOnlinePlayers()){
-                        if(CacheIgnore.isIgnoring(p,player)) continue;
+                        //TODO Ignore support?
                         if(p.equals(player) && !player.hasPlayedBefore()) continue; //Skip the welcome message for the own player
                         p.sendMessage(displayMessage);
                     }
@@ -256,7 +251,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         public void run(){
             Integer taskId = plugin.playerFlagged.remove(playerLeft.getName());
             for(Player player : Bukkit.getServer().getOnlinePlayers()){
-                if(CacheIgnore.isIgnoring(player, playerLeft)) continue;
+                //TODO: Add ignore support?
                 player.sendMessage(message);
             }
         }
