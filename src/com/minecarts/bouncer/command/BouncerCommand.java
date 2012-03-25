@@ -17,6 +17,7 @@ public class BouncerCommand extends CommandHandler{
 
         if(args[0].equalsIgnoreCase("reload")){
             plugin.reloadConfig();
+            sender.sendMessage("Bouncer configuration reloaded.");
             return true;
         }
 
