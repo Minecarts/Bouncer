@@ -3,7 +3,7 @@ main: com.minecarts.bouncer.Bouncer
 version: ${pom.version}
 website: http://minecarts.com
 author: Verrier
-depend: [DBQuery, ObjectData]
+depend: [DBQuery]
 description: >
              A player connection and disconnection support plugin
 commands:

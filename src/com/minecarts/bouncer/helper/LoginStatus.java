@@ -18,6 +18,6 @@ public class LoginStatus {
     }
 
     public boolean isBanned = false;
-    public WhitelistStatus whitelistStatus = WhitelistStatus.NOT_ON_LIST;
+    public WhitelistStatus whitelistStatus = WhitelistStatus.OK;
     public String banReason = null;
 }

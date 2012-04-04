@@ -36,8 +36,13 @@ public class PlayerListener implements Listener {
 
         //Do our ban and whitelist queries (sync)
         plugin.doIdentifierCheck(e.getKickMessage(),e.getPlayer().getName());
-        if(plugin.getConfig().getBoolean("whitelist")){
-            plugin.doWhitelistCheck(e.getKickMessage(), e.getPlayer().getName());
+
+        //Check if this hostname is a hostname which requires a whitelist
+        for (String hostnameRegex : plugin.getConfig().getStringList("whitelist")){
+           if(e.getHostname().toLowerCase().matches(hostnameRegex)){
+               plugin.doHostnameWhitelistCheck(e.getKickMessage(), e.getPlayer().getName(), e.getHostname());
+               break; //They have atleast one match, so let the query handle the rest
+           }
         }
 
         //Check the status of the bans
@@ -49,15 +54,17 @@ public class PlayerListener implements Listener {
         }
 
         //Check the status of the whitelist, if whitelisting is enabled
-        if(plugin.getConfig().getBoolean("whitelist")){
+        if(status.whitelistStatus != null){
             switch(status.whitelistStatus){
                 case NOT_ON_LIST:
                     e.setKickMessage(Bouncer.whitelistMissing);
                     e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                    plugin.clearStatus(e.getPlayer().getName());
                     return;
                 case EXPIRED:
                     e.setKickMessage(Bouncer.whitelistExpired);
                     e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
+                    plugin.clearStatus(e.getPlayer().getName());
                     return;
             }
         }

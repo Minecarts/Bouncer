@@ -1,6 +1,7 @@
 package com.minecarts.bouncer;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +22,6 @@ import com.minecarts.objectdata.ObjectData;
 public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     public final Logger log = Logger.getLogger("com.minecarts.bouncer");
     public DBQuery dbq;
-    public ObjectData objectData;
 
     public final static String fullMessage = ChatColor.GRAY + "Server is full. Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to get a guaranteed slot.";
     public final static String whitelistMissing = ChatColor.GRAY + "Please visit " + ChatColor.YELLOW + "Minecarts.com" + ChatColor.GRAY + " to add your name to our whitelist.";
@@ -38,7 +38,6 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         PluginManager pm = getServer().getPluginManager();
         PluginDescriptionFile pdf = getDescription();
         dbq = (DBQuery) pm.getPlugin("DBQuery");
-        objectData = (ObjectData) pm.getPlugin("ObjectData");
 
         //Register our events
         pm.registerEvents(playerListener,this);
@@ -121,6 +120,9 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
             loginStatus.put(playerName,new LoginStatus(status));
         }
     }
+    public void clearStatus(String playerName){
+        loginStatus.remove(playerName);
+    }
     public void setBanStatus(String playerName, boolean status, String reason){
         if(loginStatus.containsKey(playerName)){
             loginStatus.get(playerName).isBanned = status;
@@ -200,6 +202,27 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         }.sync().fetchOne(ip, playerName);
     }
 
+    public void doHostnameWhitelistCheck(final String ip,final String playerName, final String hostname){
+        new Query("SELECT `hostname` FROM `hostname_whitelist` WHERE identifier IN(?,?)") {
+            @Override
+            public void onFetch(ArrayList<HashMap> rows) {
+                if(rows == null || rows.size() == 0){
+                    setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.NOT_ON_LIST);
+                    return;
+                }
+
+                for(HashMap row : rows){
+                    if(hostname.toLowerCase().matches((String)row.get("hostname"))){
+                        //You shall ... pass!
+                        setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.OK);
+                        return;
+                    }
+                }
+            }
+        }.sync().fetch(playerName,ip);
+    }
+
+    /* Removed in favor of per domain name whitelisting
     //TODO - whitelist support with IPs and stuff.
     public void doWhitelistCheck(final String ip,final String playerName){
         new Query("SELECT (`expires` <= NOW()) AS expired FROM `whitelist` WHERE `player` = ? AND `ip` = INET_ATON(?) LIMIT 1") {
@@ -215,6 +238,7 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
             }
         }.sync().fetchOne(playerName,ip);
     }
+    */
     
     public void banIdentifier(final String identifier, final Integer duration, final String reason, final CommandSender sender){
         new Query("INSERT INTO `player_bans` (identifier,reason,bannedBy,bannedTime,expireTime) VALUES (?,?,?,NOW(),TIMESTAMPADD(MINUTE, ?, NOW()))") {
