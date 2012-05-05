@@ -60,7 +60,7 @@ public class BanCommand extends CommandHandler {
         reason = (reason.equals("")) ? plugin.getConfig().getString("messages.BAN") : reason;
         plugin.banIdentifier(identifier,duration,reason,sender);
         if(players.size() == 1){
-            players.get(0).kickPlayer(reason);
+            players.get(0).kickPlayer(plugin.getConfig().getString("messages.BAN"));
         }
         return true;
     }
