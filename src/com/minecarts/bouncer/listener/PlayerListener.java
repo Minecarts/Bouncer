@@ -49,7 +49,7 @@ public class PlayerListener implements Listener {
         LoginStatus status = plugin.getLoginStatus(e.getPlayer().getName());
         if(status.isBanned){
             e.setResult(PlayerLoginEvent.Result.KICK_BANNED);
-            e.setKickMessage(status.banReason);
+            e.setKickMessage(plugin.getConfig().getString("messages.BAN"));
             return;
         }
 
