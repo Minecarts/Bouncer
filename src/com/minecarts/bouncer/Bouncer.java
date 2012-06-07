@@ -17,7 +17,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.ChatColor;
 import com.minecarts.bouncer.listener.*;
-import com.minecarts.objectdata.ObjectData;
 
 public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     public final Logger log = Logger.getLogger("com.minecarts.bouncer");
@@ -244,8 +243,9 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         new Query("INSERT INTO `player_bans` (identifier,reason,bannedBy,bannedTime,expireTime) VALUES (?,?,?,NOW(),TIMESTAMPADD(MINUTE, ?, NOW()))") {
             @Override
             public void onInsertId(Integer id) {
-                sender.sendMessage("Banned " + identifier + " for " + duration + " minutes with message: " + reason);
-                log(sender.getName() + " banned " + identifier + " for " + duration + " minutes with message: " + reason);
+                //sender.sendMessage("Banned " + identifier + " for " + duration + " minutes with reason: " + reason);
+                log(sender.getName() + " banned " + identifier + " for " + duration + " minutes with reason: " + reason);
+                Bukkit.broadcast("Banned " + identifier + " for " + duration + " minutes with reason: " + reason, "bouncer.ban");
             }
             @Override
             public void onException(Exception x, FinalQuery query) {
