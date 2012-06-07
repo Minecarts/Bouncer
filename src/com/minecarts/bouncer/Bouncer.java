@@ -33,13 +33,12 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     private HashMap<String,LoginStatus> loginStatus = new HashMap<String, LoginStatus>();
     private HashMap<String, Integer> playerFlagged = new HashMap<String, Integer>();
     
+    @Override
     public void onEnable() {
-        PluginManager pm = getServer().getPluginManager();
-        PluginDescriptionFile pdf = getDescription();
-        dbq = (DBQuery) pm.getPlugin("DBQuery");
+        dbq = (DBQuery) Bukkit.getPluginManager().getPlugin("DBQuery");
 
         //Register our events
-        pm.registerEvents(playerListener,this);
+        Bukkit.getPluginManager().registerEvents(playerListener,this);
 
         //Register commands
         getCommand("bouncer").setExecutor(new BouncerCommand(this));
@@ -49,57 +48,57 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
 
         //Save the default config
         getConfig().options().copyDefaults(true);
-        this.saveConfig();
+        saveConfig();
 
-        log("version " + pdf.getVersion() + " enabled.");
-    }
-    public void onDisable(){
-
+        log("version " + getDescription().getVersion() + " enabled.");
     }
 
 
-    public void doLogoutMessage(final Player player){
+    public void doLogoutMessage(final Player player) {
         final Boolean playerIsSubscriber = player.hasPermission("subscriber");
         new Query("SELECT value FROM `player_meta` WHERE `player` = ? AND `key` = ? LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
                 String displayMessage = null;
-                if(row == null || !playerIsSubscriber){
+                if(row == null || !playerIsSubscriber) {
                     displayMessage = ChatColor.GRAY + player.getDisplayName() + ChatColor.GRAY + " logged out.";
                 } else {
-                    displayMessage =  MessageFormat.format("{0}" + row.get("value"),ChatColor.GRAY,player.getDisplayName());
+                    displayMessage = MessageFormat.format("{0}" + row.get("value"),ChatColor.GRAY, player.getDisplayName());
                 }
 
-                if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")){
+                if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")) {
                     delayedOptionalMessage(displayMessage, player);
                 }
             }
-        }.fetchOne(player.getName(),"Bouncer_QuitMessage");
+        }.fetchOne(player.getName(), "Bouncer_QuitMessage");
     }
-    public void doLoginMessage(final Player player){
+    
+    public void doLoginMessage(final Player player) {
         new Query("SELECT value FROM `player_meta` WHERE `player` = ? AND `key`= ? LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
                 String displayMessage = null;
-                if(!player.hasPlayedBefore()){
+                if(!player.hasPlayedBefore()) {
                     displayMessage = ChatColor.WHITE + player.getDisplayName() + " has joined the server for the first time!";
-                } else if(row == null || !player.hasPermission("subscriber")){
+                }
+                else if(row == null || !player.hasPermission("subscriber")) {
                     displayMessage = ChatColor.GRAY + player.getDisplayName() + ChatColor.GRAY + " logged in.";
-                } else {
-                    displayMessage =  MessageFormat.format("{0}" + row.get("value"),ChatColor.GRAY,player.getDisplayName());
+                }
+                else {
+                    displayMessage = MessageFormat.format("{0}" + row.get("value"), ChatColor.GRAY, player.getDisplayName());
                 }
 
                 //Check to see if it's a rejoin 
-                if(playerFlagged.containsKey(player.getName())){
+                if(playerFlagged.containsKey(player.getName())) {
                     Integer taskId = playerFlagged.remove(player.getName());
                     displayMessage = null;
-                    if(taskId != null){
+                    if(taskId != null) {
                         Bukkit.getServer().getScheduler().cancelTask(taskId); //Cancel leave message from showing
                     }
                 }
 
-                if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")){
-                    for(Player p : Bukkit.getServer().getOnlinePlayers()){
+                if(displayMessage != null && !player.hasPermission("bouncer.stealth_mode")) {
+                    for(Player p : Bukkit.getServer().getOnlinePlayers()) {
                         //TODO Ignore support?
                         if(p.equals(player) && !player.hasPlayedBefore()) continue; //Skip the welcome message for the own player
                         p.sendMessage(displayMessage);
@@ -109,31 +108,33 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         }.fetchOne(player.getName(), "Bouncer_JoinMessage");
     }
     
-    public LoginStatus getLoginStatus(String playerName){
+    public LoginStatus getLoginStatus(String playerName) {
         return loginStatus.get(playerName);
     }
-    public void setWhitelistStatus(String playerName, LoginStatus.WhitelistStatus status){
-        if(loginStatus.containsKey(playerName)){
+    public void setWhitelistStatus(String playerName, LoginStatus.WhitelistStatus status) {
+        if(loginStatus.containsKey(playerName)) {
             loginStatus.get(playerName).whitelistStatus = status;
-        } else {
-            loginStatus.put(playerName,new LoginStatus(status));
+        }
+        else {
+            loginStatus.put(playerName, new LoginStatus(status));
         }
     }
-    public void clearStatus(String playerName){
+    public void clearStatus(String playerName) {
         loginStatus.remove(playerName);
     }
-    public void setBanStatus(String playerName, boolean status, String reason){
-        if(loginStatus.containsKey(playerName)){
+    public void setBanStatus(String playerName, boolean status, String reason) {
+        if(loginStatus.containsKey(playerName)) {
             loginStatus.get(playerName).isBanned = status;
             loginStatus.get(playerName).banReason= reason;
-        } else {
-            loginStatus.put(playerName,new LoginStatus(status,reason));
+        }
+        else {
+            loginStatus.put(playerName, new LoginStatus(status, reason));
         }
     }
 
 
 
-    public void storeLocation(final Player player){
+    public void storeLocation(final Player player) {
         final Location location = player.getLocation();
         final String locString = MessageFormat.format("{0}:{1,number,#.####}:{2,number,#.####}:{3,number,#.####}:{4,number,#.####}:{5,number,#.####}",
                 location.getWorld().getName(),
@@ -142,16 +143,16 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                 location.getZ(),
                 location.getYaw(),
                 location.getPitch()
-                );
+        );
         new Query("INSERT INTO `player_meta` (`player`,`key`,`value`,`updated`) VALUES (?,'Bouncer_LogoutLocation',?,NOW()) ON DUPLICATE KEY UPDATE `value`=?") {
             @Override
             public void onInsertId(Integer id) {
                 //log("Set logout location for " + player.getName() + " to " + locString);
             }
-        }.insertId(player.getName(),locString,locString);
+        }.insertId(player.getName(), locString, locString);
     }
 
-    public void fetchLocation(final Player player){
+    public void fetchLocation(final Player player) {
         new Query("SELECT `value` FROM `player_meta` WHERE `player`=? AND `key`='Bouncer_LogoutLocation' LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
@@ -173,13 +174,13 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                 if(loc.getWorld() == null) return;
                 if(player.isOnline()) return; //Fixes issue with players connecting to the server after lagging out
 
-                if(player.getLocation().getWorld() != loc.getWorld() || player.getLocation().distance(loc) > 1){
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(Bouncer.this,new Runnable() {
+                if(player.getLocation().getWorld() != loc.getWorld() || player.getLocation().distance(loc) > 1) {
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(Bouncer.this, new Runnable() {
                         public void run() {
                             log(player.getName() + " logged in at an unexpected location, moved to " + loc);
                             player.teleport(loc);
                         }
-                    },1);
+                    }, 1);
                 }
                 //log("Got location: " + row.get("value"));
             }
@@ -188,48 +189,48 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     
     
     
-    public void doIdentifierCheck(String ip, final String playerName){
+    public void doIdentifierCheck(String ip, final String playerName) {
         new Query("SELECT reason FROM player_bans WHERE (identifier = ? OR identifier = ?) AND expireTime > NOW() LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
-                if(row == null){
-                    setBanStatus(playerName,false,null);
+                if(row == null) {
+                    setBanStatus(playerName, false, null);
                     return; //They're not banned
                  }
-                setBanStatus(playerName,true,(String)row.get("reason"));
+                setBanStatus(playerName, true, (String) row.get("reason"));
             }
         }.sync().fetchOne(ip, playerName);
     }
 
-    public void doHostnameWhitelistCheck(final String ip,final String playerName, final String hostname){
-        new Query("SELECT `hostname` FROM `hostname_whitelist` WHERE identifier IN(?,?)") {
+    public void doHostnameWhitelistCheck(final String ip,final String playerName, final String hostname) {
+        new Query("SELECT `hostname` FROM `hostname_whitelist` WHERE identifier IN (?, ?)") {
             @Override
             public void onFetch(ArrayList<HashMap> rows) {
-                if(rows == null || rows.size() == 0){
+                if(rows == null || rows.size() == 0) {
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.NOT_ON_LIST);
                     return;
                 }
 
-                for(HashMap row : rows){
-                    if(hostname.toLowerCase().matches((String)row.get("hostname"))){
+                for(HashMap row : rows) {
+                    if(hostname.toLowerCase().matches((String) row.get("hostname"))) {
                         //You shall ... pass!
                         setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.OK);
                         return;
                     }
                 }
             }
-        }.sync().fetch(playerName,ip);
+        }.sync().fetch(playerName, ip);
     }
 
     /* Removed in favor of per domain name whitelisting
     //TODO - whitelist support with IPs and stuff.
-    public void doWhitelistCheck(final String ip,final String playerName){
+    public void doWhitelistCheck(final String ip,final String playerName) {
         new Query("SELECT (`expires` <= NOW()) AS expired FROM `whitelist` WHERE `player` = ? AND `ip` = INET_ATON(?) LIMIT 1") {
             @Override
             public void onFetchOne(HashMap row) {
-                if(row == null){
+                if(row == null) {
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.NOT_ON_LIST);
-                } else if ((Long)row.get("expired") == 1){
+                } else if ((Long)row.get("expired") == 1) {
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.EXPIRED);
                 } else {
                     setWhitelistStatus(playerName, LoginStatus.WhitelistStatus.OK);
@@ -239,8 +240,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
     }
     */
     
-    public void banIdentifier(final String identifier, final Integer duration, final String reason, final CommandSender sender){
-        new Query("INSERT INTO `player_bans` (identifier,reason,bannedBy,bannedTime,expireTime) VALUES (?,?,?,NOW(),TIMESTAMPADD(MINUTE, ?, NOW()))") {
+    public void banIdentifier(final String identifier, final Integer duration, final String reason, final CommandSender sender) {
+        new Query("INSERT INTO `player_bans` (identifier, reason, bannedBy, bannedTime, expireTime) VALUES (?, ?, ?, NOW(), TIMESTAMPADD(MINUTE, ?, NOW()))") {
             @Override
             public void onInsertId(Integer id) {
                 //sender.sendMessage("Banned " + identifier + " for " + duration + " minutes with reason: " + reason);
@@ -252,12 +253,12 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
                 sender.sendMessage("Ban failed: " + x.getMessage());
                 x.printStackTrace();
             }
-        }.insertId(identifier,reason,sender.getName(),duration);
+        }.insertId(identifier, reason, sender.getName(), duration);
     }
 
-    private void delayedOptionalMessage(String message, Player player){
+    private void delayedOptionalMessage(String message, Player player) {
         Runnable delayedSend = new DelayedSend(message, player, this);
-        int taskId = this.getServer().getScheduler().scheduleAsyncDelayedTask(this,delayedSend,20 * 15); //12 seconds later
+        int taskId = Bukkit.getScheduler().scheduleAsyncDelayedTask(this, delayedSend, 20 * 15); //12 seconds later
         this.playerFlagged.put(player.getName(), taskId);
     }
 
@@ -266,15 +267,15 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         private Player playerLeft;
         private Bouncer plugin;
 
-        public DelayedSend(String message, Player playerLeft, Bouncer plugin){
+        public DelayedSend(String message, Player playerLeft, Bouncer plugin) {
             this.message = message;
             this.playerLeft = playerLeft;
             this.plugin = plugin;
         }
 
-        public void run(){
+        public void run() {
             Integer taskId = plugin.playerFlagged.remove(playerLeft.getName());
-            for(Player player : Bukkit.getServer().getOnlinePlayers()){
+            for(Player player : Bukkit.getServer().getOnlinePlayers()) {
                 //TODO: Add ignore support?
                 player.sendMessage(message);
             }
@@ -303,8 +304,8 @@ public class Bouncer extends org.bukkit.plugin.java.JavaPlugin{
         }
     }
 
-    public void log(String msg){
-        getLogger().log(Level.INFO,msg);
+    public void log(String msg) {
+        getLogger().log(Level.INFO, msg);
     }
 
 }
